@@ -50,12 +50,12 @@ if [[ $FLAG_PARTITION == 1 ]]; then
     # Input genotype files (PLINK format)
     # SA - hard coding to chr22_Ana
     # GENO_BIM="../data/genotypes/example_chr"$CHR".bim"
-    GENO_BIM="../data/genotypes/chr22_Ana.bim"
+    GENO_BIM="../data/genotypes/simple_ID/chr22_Ana.bim"
 
     # List of variants that passed QC
     # SA giving fake qc file for now 
     # QC_VARIANTS="../data/qc/variants_qc.txt"
-    QC_VARIANTS="../data/qc/chr22_bad_id_qc_mod1.txt"
+    QC_VARIANTS="../data/qc/chr22_simple_id_qc_mod1.txt"
 
     # SA - adding a block to generate qc variant file if it doesnt exist - one long column with matching IDs
     if [ ! -s "$QC_VARIANTS" ]; then
@@ -72,7 +72,7 @@ if [[ $FLAG_PARTITION == 1 ]]; then
     # Basename for output dendrogram file
     # SA - hard coding to chr22_Ana
     # OUT_FILE=$TMP_DIR"/partitions/example_chr"$CHR".txt"
-    OUT_FILE=$TMP_DIR"/partitions/chr22_Ana_PLEASE.txt"
+    OUT_FILE=$TMP_DIR"/partitions/chr22_Ana_simple_ID.txt"
 
     # Partition the variants at different resolutions
     $PARTITION_VARIANTS $GEN_MAP $GENO_BIM $QC_VARIANTS $OUT_FILE

@@ -45,11 +45,11 @@ if [[ $FLAG_GENERATE_KNOCKOFFS == 1 ]]; then
 
 
   $SNPKNOCK2 \
-    --bgen ../data/haplotypes/bad_id/chr22_Ana_withIDs \
+    --bgen ../data/haplotypes/simple_ID/chr22_Ana \
     --keep "../data/qc/chr22_Ana_samples_qc.txt" \
-    --extract "../data/qc/qc_chr22_Ana.txt" \
-    --map "../data/maps/chr22.b37.gmap" \
-    --part "../tmp/partitions/chr22_Ana_PLEASE.txt" \
+    --extract "../data/qc/qc_chr22_simple_id.txt" \
+    --map "../data/maps/chr22_Ana_with_rate_fixed.b37.gmap" \
+    --part "../tmp/partitions/chr22_Ana_simple_ID.txt" \
     --K 10 \
     --cluster_size_min 1000 \
     --cluster_size_max 10000 \
