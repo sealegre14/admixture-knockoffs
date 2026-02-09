@@ -20,9 +20,10 @@ OUT_DIR="../results"
 mkdir -p $OUT_DIR
 
 # List of chromosomes
-CHR_MIN=21
-CHR_MAX=22
-CHR_LIST=($(seq $CHR_MIN $CHR_MAX))
+# CHR_MIN=21
+# CHR_MAX=22
+# SA changing to only chr 22
+CHR_LIST=(22)
 
 # List of resolutions
 RESOLUTION_LIST=("6" "5" "4" "3" "2" "1" "0")
