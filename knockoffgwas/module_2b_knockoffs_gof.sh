@@ -10,6 +10,8 @@ set -e
 
 # Temporary storage of intermediate files
 TMP_DIR="../tmp"
+# SA adding subdirectory for data from mod2
+KNOCKOFF_SUBDIR="chr22_Ana"
 mkdir -p $TMP_DIR
 mkdir -p $TMP_DIR"/knockoffs"
 mkdir -p $TMP_DIR"/knockoffs_gof"
@@ -50,12 +52,12 @@ if [[ $FLAG_GOF_KNOCKOFFS == 1 ]]; then
     echo "Computing goodness-of-fit diagnostics for chromosome "$CHR" at resolution "$RESOLUTION" ..."
     echo ""
 
-    STATS_BASENAME=$TMP_DIR"/knockoffs_gof/knockoffs_chr"$CHR"_res"$RESOLUTION
-    GROUPS_FILE=$TMP_DIR"/knockoffs/knockoffs_chr"$CHR"_res"$RESOLUTION"_grp.txt"
-    OUT_BASENAME=$TMP_DIR"/knockoffs_gof_plots/knockoffs_chr"$CHR"_res"$RESOLUTION
+    STATS_BASENAME=$TMP_DIR"/knockoffs_gof/knockoffs_chr"$CHR"_Ana_res"$RESOLUTION
+    GROUPS_FILE=$TMP_DIR"/knockoffs/"$KNOCKOFF_SUBDIR"/knockoffs_chr"$CHR"_Ana_res"$RESOLUTION"_grp.txt"
+    OUT_BASENAME=$TMP_DIR"/knockoffs_gof_plots/knockoffs_chr"$CHR"_Ana_res"$RESOLUTION
 
     # Compute self-similarity diagnostics
-    plink --bfile $TMP_DIR"/knockoffs/knockoffs_chr"$CHR"_res"$RESOLUTION \
+    plink --bfile $TMP_DIR"/knockoffs/"$KNOCKOFF_SUBDIR"/knockoffs_chr"$CHR"_Ana_res"$RESOLUTION \
           --keep-allele-order \
           --freq \
           --r in-phase --ld-window 2 --ld-window-kb 0 \
@@ -63,7 +65,7 @@ if [[ $FLAG_GOF_KNOCKOFFS == 1 ]]; then
           --out $STATS_BASENAME"_self"
 
     # Compute exchangeability diagnostics
-    plink --bfile $TMP_DIR"/knockoffs/knockoffs_chr"$CHR"_res"$RESOLUTION \
+    plink --bfile $TMP_DIR"/knockoffs/"$KNOCKOFF_SUBDIR"/knockoffs_chr"$CHR"_Ana_res"$RESOLUTION \
           --keep-allele-order \
           --r2 in-phase --ld-window 5000 --ld-window-kb 10000 --ld-window-r2 0.01 \
           --memory 9000 \
