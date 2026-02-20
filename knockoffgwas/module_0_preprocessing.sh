@@ -1,5 +1,3 @@
-erm why did the 0 id_id print to my terminal when i ran this 
-
 #!/bin/bash
 #
 # Preprocess VCF data --> take in VCF --> assign unique IDs 
@@ -45,12 +43,35 @@ for VCF in "$@"; do
 
   BASENAME=$(basename "$VCF" .vcf)
   OUT_FILE="$OUT_DIR/${BASENAME}_clean.vcf"
+  # Extract chromosome name from VCF basename (assumes format chrXX_*)
+  CHR=$(echo "$BASENAME" | cut -d'_' -f1)
+
+  # --- Step 0: Trim VCF by 0.5 Mb at each end ---
+  # will eventually move this to config file of snakemake
+
+  TRIM_BP=500000  # 0.5 Mb
+
+  # Get min/max positions in original VCF
+  VCF_MIN=$(bcftools query -f '%POS\n' "$VCF" | sort -n | head -n1)
+  VCF_MAX=$(bcftools query -f '%POS\n' "$VCF" | sort -n | tail -n1)
+
+  TRIM_START=$((VCF_MIN + TRIM_BP))
+  TRIM_END=$((VCF_MAX - TRIM_BP))
+
+  echo "Trimming VCF positions to $TRIM_START - $TRIM_END"
+
+
+  TRIMMED_VCF="$OUT_DIR/${BASENAME}_trimmed.vcf"
+
+  awk -v start=$TRIM_START -v end=$TRIM_END 'BEGIN{FS=OFS="\t"} 
+      /^#/ {print; next} 
+      $2>=start && $2<=end {print}' "$VCF" > "$TRIMMED_VCF"
 
   # Step 1: Clean VCF 
   # rewrite ID name to be CHROM:POS:REF:ALT
   bcftools annotate \
     --set-id '%CHROM:%POS:%REF:%ALT' \
-    "$VCF" \
+    "$TRIMMED_VCF" \
     -Ov -o "$OUT_FILE"
 
   echo "Created $OUT_FILE"
@@ -95,9 +116,6 @@ done
 for VCF in "$@"; do
     BASENAME=$(basename "$VCF" .vcf)
     
-    # Extract chromosome name from VCF basename (assumes format chrXX_*)
-    CHR=$(echo "$BASENAME" | cut -d'_' -f1)
-    
     ORIG_MAP="$MAP_DIR/${CHR}.b37.gmap"
     UPDATED_MAP="$UPDATED_MAP_DIR/${CHR}.b37.gmap.clean.txt"
     
@@ -107,14 +125,15 @@ for VCF in "$@"; do
     fi
     
     echo "Updating map for $CHR..."
-    
-    awk 'NR==1 {prev_cM=$3; prev_BP=$1; rate=0; print $2,$1,rate,$3; next}
-    {
+
+    awk 'BEGIN {OFS="\t"; print "Chromosome","Position(bp)","Rate(cM/Mb)","Map(cM)"}
+    NR>1 {
+      if(NR==2){prev_cM=$3; prev_BP=$2; rate=0; print $1,$2,rate,$3; next}
       delta_cM = $3 - prev_cM
-      delta_BP = $1 - prev_BP
+      delta_BP = $2 - prev_BP
       if(delta_BP==0){rate=0}else{rate = delta_cM/(delta_BP/1e6)}
-      print $2,$1,rate,$3
-      prev_cM=$3; prev_BP=$1
+      print $1,$2,rate,$3
+      prev_cM=$3; prev_BP=$2
     }' "$ORIG_MAP" > "$UPDATED_MAP"
 
     

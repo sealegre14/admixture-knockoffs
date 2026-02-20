@@ -11,7 +11,7 @@ set -e
 # Temporary storage of intermediate files
 TMP_DIR="../tmp"
 # SA adding subdirectory for data from mod2
-KNOCKOFF_SUBDIR="chr22_Ana"
+KNOCKOFF_SUBDIR="chr22_Ana_swap"
 mkdir -p $TMP_DIR
 mkdir -p $TMP_DIR"/knockoffs"
 mkdir -p $TMP_DIR"/knockoffs_gof"

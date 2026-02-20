@@ -44,12 +44,45 @@ if [[ $FLAG_GENERATE_KNOCKOFFS == 1 ]]; then
 # --ibd "../data/ibd/example_chr{"$CHR_MIN":"$CHR_MAX"}.txt" \
 
 
+#SA adding code to make legend file before executiing snpknock2
+
+  echo ""
+  echo "----------------------------------------------------------------------------------------------------"
+  echo "Generating legend file"
+  echo "----------------------------------------------------------------------------------------------------"
+
+  # Define paths
+  PART_FILE="../tmp/partitions/chr22_Ana_trimmed.txt"
+  VCF_FILE="../data/chr22_Ana_clean.vcf"
+  HAPS_PREFIX="../data/haplotypes/chr22_Ana/chr22_Ana"
+  LEGEND_FILE="${HAPS_PREFIX}.legend"
+
+  # Temporary SNP order file
+  SNP_ORDER="${TMP_DIR}/snp_order.txt"
+
+  # Extract SNP IDs from partition file (skip header)
+  tail -n +2 $PART_FILE | cut -f1 > $SNP_ORDER
+
+  # Create legend file in correct SNP order
+  {
+    echo -e "id\tposition\tref\talt"
+    bcftools query -f '%ID\t%POS\t%REF\t%ALT\n' $VCF_FILE | \
+    awk 'NR==FNR{order[$1]=NR; next} $1 in order {print $1"\t"$2"\t"$3"\t"$4}' $SNP_ORDER -
+  } > $LEGEND_FILE
+
+  # Clean up
+  rm $SNP_ORDER
+
+  echo "Legend file created: $LEGEND_FILE"
+
+# now back to normal code 
+
   $SNPKNOCK2 \
-    --haps ../data/haplotypes/unicorn/chr22_Ana_haps \
-    --keep "../data/qc/chr22_Ana_samples_qc.txt" \
-    --extract "../data/qc/qc_chr22_Ana_only_colons.txt" \
-    --map "../data/maps/chr22_Ana_with_rate_fixed.b37.gmap" \
-    --part "../tmp/partitions/chr22_Ana_only_colons.txt" \
+    --haps ../data/haplotypes/chr22_Ana/chr22_Ana \
+    --keep "../data/qc/test2/samples_qc.txt" \
+    --extract "../data/qc/test2/qc_chr22_Ana.txt" \
+    --map "../data/maps/test2/chr22.b37.gmap.clean.txt" \
+    --part "../tmp/partitions/chr22_Ana_trimmed.txt" \
     --K 10 \
     --cluster_size_min 1000 \
     --cluster_size_max 10000 \
@@ -60,7 +93,7 @@ if [[ $FLAG_GENERATE_KNOCKOFFS == 1 ]]; then
     --seed 2020 \
     --compute-references \
     --generate-knockoffs \
-    --out $TMP_DIR"/knockoffs/chr22_Ana/knockoffs_chr22_Ana"
+    --out $TMP_DIR"/knockoffs/chr22_Ana_trimmed/knockoffs_chr22_Ana"
 
 else
   echo ""
